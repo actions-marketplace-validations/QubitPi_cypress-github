@@ -35,7 +35,6 @@ jobs:
         run: yarn install
       - name: Load app environment variables
         run: |
-          touch .env
           echo "${{ secrets.test_env_file }}" >> .env
 #      - name: Load app environment variables
 #        run: |
