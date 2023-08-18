@@ -1,5 +1,6 @@
 ---
 name: CI/CD E2E Tests
+Description: "CI/CD E2E Tests"
 
 "on":
   workflow_call:
