@@ -21,7 +21,7 @@ jobs:
 
   e2e-tests:
     name: E2E Tests
-    needs: [yaml-lint, markdown-lint, markdown-link-check, code-style, list-e2e-test-specs]
+    needs: [list-e2e-test-specs]
     strategy:
       fail-fast: false
       matrix:
