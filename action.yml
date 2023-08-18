@@ -1,6 +1,9 @@
 ---
 name: CI/CD E2E Tests
-Description: "CI/CD E2E Tests"
+description: "CI/CD E2E Tests"
+branding:
+  icon: "box"
+  color: "blue"
 
 "on":
   workflow_call:
