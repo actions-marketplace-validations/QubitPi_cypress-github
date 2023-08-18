@@ -1,0 +1,32 @@
+---
+name: CI/CD E2E Tests
+
+"on":
+  workflow_call:
+
+jobs:
+  list-e2e-test-specs:
+    runs-on: ubuntu-latest
+    outputs:
+      paths: ${{ steps.list-e2e-test-specs.outputs.paths }}
+    steps:
+      - name: List Files
+        id: list-e2e-test-specs
+        uses: mirko-felice/list-files-action@v3.0.5
+        with:
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          path: "cypress/e2e"
+          ext: ".ts"
+
+  e2e-tests:
+    name: E2E Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        test_env: ["dev", "prod"]
+        test_spec: ${{ fromJson(needs.list-e2e-test-specs.outputs.paths) }}
+    uses: ./e2e-tests.yml
+    with:
+      testing_env: ${{ matrix.test_env }}
+      spec_file_path: ${{ matrix.test_spec }}

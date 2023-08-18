@@ -1,0 +1,55 @@
+---
+name: CI/CD E2E Tests
+
+"on":
+  workflow_call:
+    inputs:
+      testing_env:
+        required: true
+        type: string
+      spec_file_path:
+        required: true
+        type: string
+
+jobs:
+  e2e-tests:
+    name: E2E Tests (${{ inputs.spec_file_path }}) in ${{ inputs.testing_env }} Mode
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node_version: [16]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set node version to ${{ matrix.node_version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install dependencies
+        run: yarn install
+      - name: Run E2E tests in ${{ inputs.testing_env }} mode
+        shell: bash
+        run: |
+          if [[ ${{ inputs.testing_env }} == 'dev' ]]; then
+              yarn start &
+              yarn wait-on-dev
+              yarn e2e --spec "${{ inputs.spec_file_path }}"
+          else
+              yarn build
+              npm install -g serve
+              serve -s dist -l 8080 &
+              yarn wait-on-prod
+              yarn e2e --spec "${{ inputs.spec_file_path }}"
+          fi
+        env:
+          SPEC_FILE_PATH: ${{ inputs.spec_file_path }}
+      - name: Upload test videos and screenshots on test failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.testing_env }}-${{ inputs.spec_file_path }}-${{ matrix.node_version }}
+          path: |
+            ./cypress/videos
+            ./cypress/screenshots
