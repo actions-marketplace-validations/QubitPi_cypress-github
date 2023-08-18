@@ -1,5 +1,5 @@
 ---
-name: CI/CD E2E Tests
+name: Nexus Graph CI/CD E2E Tests
 
 "on":
   workflow_call:
@@ -10,6 +10,10 @@ name: CI/CD E2E Tests
       spec_file_path:
         required: true
         type: string
+      entity_extraction_call_delay_in_ms:
+        required: false
+        type: string
+        default: 5000
 
 jobs:
   e2e-tests:
@@ -29,8 +33,18 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - name: Install dependencies
         run: yarn install
+      - name: Load app environment variables
+        run: |
+          touch .env
+          echo "NODE_ENV=development" >> .env
+          echo "EXPAND_API_URL=${{ secrets.EXPAND_API_URL }}" >> .env
+          echo "ENTITY_EXTRACTION_CALL_DELAY_IN_MS=${{ inputs.entity_extraction_call_delay_in_ms }}" >> .env
+          echo "ENTITY_EXTRACTION_API_URL=${{ secrets.ENTITY_EXTRACTION_API_URL }}" >> .env
+          echo "LOGTO_APP_ID=${{ secrets.LOGTO_APP_ID }}" >> .env
+          echo "LOGTO_ENDPOINT_URL=${{ secrets.LOGTO_ENDPOINT_URL }}" >> .env
+          echo "TEST_USER_NAME=${{ secrets.TEST_USER_NAME }}" >> .env
+          echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env
       - name: Run E2E tests in ${{ inputs.testing_env }} mode
-        shell: bash
         run: |
           if [[ ${{ inputs.testing_env }} == 'dev' ]]; then
               yarn start &

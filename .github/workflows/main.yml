@@ -1,9 +1,5 @@
 ---
-name: CI/CD E2E Tests
-description: "CI/CD E2E Tests"
-branding:
-  icon: "box"
-  color: "blue"
+name: Nexus Graph CI/CD
 
 "on":
   workflow_call:
@@ -25,12 +21,14 @@ jobs:
 
   e2e-tests:
     name: E2E Tests
+    needs: [yaml-lint, markdown-lint, markdown-link-check, code-style, list-e2e-test-specs]
     strategy:
       fail-fast: false
       matrix:
         test_env: ["dev", "prod"]
         test_spec: ${{ fromJson(needs.list-e2e-test-specs.outputs.paths) }}
-    uses: ./e2e-tests/e2e-tests.yml
+    uses: ./.github/workflows/e2e-tests.yml
+    secrets: inherit
     with:
       testing_env: ${{ matrix.test_env }}
       spec_file_path: ${{ matrix.test_spec }}
