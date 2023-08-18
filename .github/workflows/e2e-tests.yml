@@ -14,9 +14,6 @@ name: Nexus Graph CI/CD E2E Tests
         required: false
         type: string
         default: 5000
-    secrets:
-      test_env_file:
-        required: true
 
 jobs:
   e2e-tests:

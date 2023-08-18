@@ -3,6 +3,9 @@ name: Nexus Graph CI/CD
 
 "on":
   workflow_call:
+    secrets:
+      test_env_file:
+        required: true
 
 jobs:
   list-e2e-test-specs:
